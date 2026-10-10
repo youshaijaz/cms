@@ -1,0 +1,6 @@
+Django
+Pillow
+openai
+python-dotenv
+gunicorn
+whitenoise
