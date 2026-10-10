@@ -1,0 +1,80 @@
+{% extends "base.html" %}
+
+{% block title %}Create Post | Post Studio{% endblock %}
+
+{% block content %}
+<section class="card form-card">
+    <p class="studio-eyebrow">YOUR NEXT POST</p>
+    <h1>Make something worth sharing.</h1>
+    <p>Choose your brand, pick a layout, and add your message.</p>
+
+    <form method="post" id="post-form">
+        {% csrf_token %}
+
+        {% for error in form.non_field_errors %}
+            <p class="error" role="alert">{{ error }}</p>
+        {% endfor %}
+
+        {% for field in form %}
+            <div class="form-group">
+                {% if field.name == "template" %}
+                    <fieldset class="template-fieldset">
+                        <legend>{{ field.label }}</legend>
+
+                        <div class="template-options">
+                            {% for radio in field %}
+                                <label class="template-option"
+                                       for="{{ radio.id_for_label }}">
+                                    {{ radio.tag }}
+                                    <span>{{ radio.choice_label }}</span>
+                                </label>
+                            {% endfor %}
+                        </div>
+                    </fieldset>
+                {% else %}
+                    <label for="{{ field.id_for_label }}">
+                        {{ field.label }}
+                    </label>
+                    {{ field }}
+                {% endif %}
+
+                {% for error in field.errors %}
+                    <p class="error">{{ error }}</p>
+                {% endfor %}
+            </div>
+        {% endfor %}
+
+        <div class="actions">
+            <button type="submit" class="button" id="generate-button">
+                Generate post ↗
+            </button>
+
+            <a class="button secondary" href="{% url 'brands:list' %}">
+                Cancel
+            </a>
+        </div>
+
+        <p id="generation-status" class="muted"
+           role="status" hidden></p>
+    </form>
+</section>
+
+<script>
+    const form = document.getElementById("post-form");
+    const button = document.getElementById("generate-button");
+    const status = document.getElementById("generation-status");
+
+    form.addEventListener("submit", function () {
+        button.disabled = true;
+        button.textContent = "Generating…";
+        status.hidden = false;
+        status.textContent = "Rendering your image and preparing your caption.";
+    });
+
+    window.addEventListener("pageshow", function () {
+        button.disabled = false;
+        button.textContent = "Generate post ↗";
+        status.hidden = true;
+    });
+</script>
+{% endblock %}

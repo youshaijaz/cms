@@ -1,0 +1,84 @@
+{% extends "base.html" %}
+
+{% block title %}{{ post.headline }} | Post Studio{% endblock %}
+
+{% block content %}
+<div class="page-heading">
+    <div>
+        <p class="studio-eyebrow">READY TO SHARE</p>
+        <h1>{{ post.headline }}</h1>
+        <p>{{ post.brand.name }} · {{ post.template.name }}</p>
+    </div>
+
+    <a class="button"
+       href="{% url 'posts:create' %}?brand={{ post.brand.pk }}">
+        Make another ↗
+    </a>
+</div>
+
+<div class="post-result">
+    <section class="card">
+        <img class="generated-image"
+             src="{% url 'posts:image' post.pk %}"
+             alt="Generated post: {{ post.headline }}">
+
+        <a class="button download-button"
+           href="{% url 'posts:image' post.pk %}?download=1">
+            Download PNG
+        </a>
+
+        <p class="muted">1080 × 1080 pixels</p>
+    </section>
+
+    <section class="card">
+        <h2>Your caption</h2>
+        <p>Copy this text or download it to post with your image.</p>
+
+        <label class="caption-label" for="caption-text">
+            Caption and hashtags
+        </label>
+
+        <textarea id="caption-text"
+                  class="caption-text"
+                  readonly>{{ post.full_caption }}</textarea>
+
+        <div class="actions">
+            <button class="button" type="button"
+                    id="copy-button" hidden>
+                Copy caption
+            </button>
+
+            <a class="button secondary"
+               href="{% url 'posts:caption_download' post.pk %}">
+                Download text
+            </a>
+        </div>
+
+        <p id="copy-status" class="muted" role="status"></p>
+    </section>
+</div>
+
+<a href="{% url 'brands:detail' post.brand.pk %}">
+    Back to {{ post.brand.name }}
+</a>
+
+<script>
+    const copyButton = document.getElementById("copy-button");
+    const caption = document.getElementById("caption-text");
+    const copyStatus = document.getElementById("copy-status");
+
+    copyButton.hidden = false;
+
+    copyButton.addEventListener("click", async function () {
+        try {
+            await navigator.clipboard.writeText(caption.value);
+            copyStatus.textContent = "Caption copied.";
+        } catch (error) {
+            caption.focus();
+            caption.select();
+            copyStatus.textContent =
+                "Text selected. Press Ctrl+C, or Command+C on a Mac.";
+        }
+    });
+</script>
+{% endblock %}

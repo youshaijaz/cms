@@ -1,0 +1,621 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title>Log in · Post Studio</title>
+
+    <style>
+        :root {
+            --background: #101110;
+            --panel: #191b18;
+            --text: #f2f1e9;
+            --muted: #a0a397;
+            --accent: #d4f66a;
+            --border: #32362d;
+        }
+
+        * {
+            box-sizing: border-box;
+        }
+
+        body {
+            margin: 0;
+            background: var(--background);
+            color: var(--text);
+            font-family: Arial, Helvetica, sans-serif;
+            -webkit-font-smoothing: antialiased;
+        }
+
+        a {
+            color: inherit;
+        }
+
+        button,
+        input {
+            font: inherit;
+        }
+
+        .page {
+            min-height: 100vh;
+            display: grid;
+            grid-template-columns: 1.1fr 1fr;
+        }
+
+        /* Left editorial panel */
+
+        .editorial {
+            position: relative;
+            overflow: hidden;
+            padding: 42px 56px;
+            background: var(--accent);
+            color: #18200e;
+            display: flex;
+            flex-direction: column;
+            justify-content: space-between;
+        }
+
+        .wordmark {
+            display: inline-flex;
+            align-items: center;
+            gap: 12px;
+            font-size: 20px;
+            font-weight: 800;
+            letter-spacing: -0.8px;
+        }
+
+        .brand-mark {
+            width: 30px;
+            height: 30px;
+            background: #18200e;
+            border-radius: 50%;
+            position: relative;
+        }
+
+        .brand-mark::after {
+            content: "";
+            position: absolute;
+            width: 12px;
+            height: 12px;
+            top: 9px;
+            left: 9px;
+            background: var(--accent);
+            border-radius: 2px;
+            transform: rotate(45deg);
+        }
+
+        .editorial-content {
+            margin: 65px 0;
+            position: relative;
+            z-index: 1;
+        }
+
+        .eyebrow {
+            font-size: 11px;
+            font-weight: 700;
+            letter-spacing: 2px;
+            text-transform: uppercase;
+        }
+
+        .editorial h1 {
+            font-size: clamp(56px, 6.5vw, 96px);
+            line-height: 0.94;
+            font-weight: 800;
+            letter-spacing: -6px;
+            margin: 24px 0;
+        }
+
+        .editorial h1 em {
+            font-family: Georgia, "Times New Roman", serif;
+            font-weight: 400;
+        }
+
+        .intro {
+            max-width: 320px;
+            font-size: 15px;
+            line-height: 1.7;
+            color: #394324;
+        }
+
+        .preview {
+            position: relative;
+            width: 240px;
+            margin: 42px 0 12px auto;
+            transform: rotate(-7deg);
+        }
+
+        .preview::before {
+            content: "";
+            position: absolute;
+            inset: 0;
+            background: #b7d45e;
+            border: 1px solid #18200e;
+            transform: rotate(12deg);
+        }
+
+        .post-card {
+            position: relative;
+            min-height: 245px;
+            padding: 24px;
+            background: #f4f0e6;
+            border: 1px solid #18200e;
+            box-shadow: 12px 16px 0 rgb(24 32 14 / 10%);
+        }
+
+        .post-label {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            font-size: 9px;
+            font-weight: bold;
+            letter-spacing: 1px;
+        }
+
+        .post-title {
+            font-family: Georgia, "Times New Roman", serif;
+            font-size: 47px;
+            line-height: 0.95;
+            letter-spacing: -2px;
+            margin: 36px 0 24px;
+        }
+
+        .post-footer {
+            padding-top: 12px;
+            border-top: 1px solid #18200e;
+            font-size: 9px;
+            letter-spacing: 1px;
+        }
+
+        .editorial-footer {
+            display: flex;
+            justify-content: space-between;
+            gap: 16px;
+            padding-top: 22px;
+            border-top: 1px solid rgb(24 32 14 / 25%);
+            font-size: 11px;
+        }
+
+        /* Login panel */
+
+        .login-panel {
+            padding: 42px 56px;
+            display: flex;
+            flex-direction: column;
+        }
+
+        .panel-top {
+            display: flex;
+            align-items: center;
+            justify-content: flex-end;
+            gap: 8px;
+            color: var(--muted);
+            font-size: 11px;
+            letter-spacing: 1px;
+            text-transform: uppercase;
+        }
+
+        .status-dot {
+            width: 6px;
+            height: 6px;
+            background: var(--accent);
+            border-radius: 50%;
+        }
+
+        .login-content {
+            width: 100%;
+            max-width: 390px;
+            margin: auto;
+            padding: 65px 0;
+        }
+
+        .section-number {
+            display: inline-block;
+            border: 1px solid var(--border);
+            padding: 8px 12px;
+            color: var(--accent);
+            font-size: 11px;
+            letter-spacing: 1.5px;
+        }
+
+        .login-content h2 {
+            font-size: 46px;
+            line-height: 1.05;
+            letter-spacing: -2px;
+            font-weight: 500;
+            margin: 26px 0 12px;
+        }
+
+        .description {
+            color: var(--muted);
+            font-size: 14px;
+            line-height: 1.7;
+            margin: 0 0 36px;
+        }
+
+        .field {
+            margin-bottom: 22px;
+        }
+
+        .field label {
+            display: block;
+            margin-bottom: 10px;
+            font-size: 12px;
+            font-weight: 600;
+        }
+
+        .field input {
+            display: block;
+            width: 100%;
+            min-height: 54px;
+            padding: 15px 16px;
+            background: var(--panel);
+            color: var(--text);
+            border: 1px solid var(--border);
+            border-radius: 4px;
+            outline: none;
+            transition: border-color 150ms, box-shadow 150ms;
+        }
+
+        .field input::placeholder {
+            color: #74796b;
+        }
+
+        .field input:focus {
+            border-color: var(--accent);
+            box-shadow: 0 0 0 3px rgb(212 246 106 / 10%);
+        }
+
+        .password-wrap {
+            position: relative;
+        }
+
+        .password-wrap input {
+            padding-right: 72px;
+        }
+
+        .password-toggle {
+            position: absolute;
+            right: 14px;
+            top: 50%;
+            transform: translateY(-50%);
+            padding: 8px 0;
+            border: 0;
+            background: transparent;
+            color: var(--muted);
+            font-size: 11px;
+            cursor: pointer;
+        }
+
+        .password-toggle:hover {
+            color: var(--text);
+        }
+
+        .submit {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            width: 100%;
+            margin-top: 30px;
+            padding: 17px 20px;
+            border: 1px solid var(--accent);
+            border-radius: 4px;
+            background: var(--accent);
+            color: #18200e;
+            font-size: 14px;
+            font-weight: 700;
+            cursor: pointer;
+            transition: background 150ms, transform 150ms;
+        }
+
+        .submit:hover {
+            background: #e0ff8c;
+            transform: translateY(-2px);
+        }
+
+        .submit:active {
+            transform: translateY(0);
+        }
+
+        .submit span {
+            font-size: 21px;
+            line-height: 1;
+        }
+
+        button:focus-visible,
+        a:focus-visible {
+            outline: 2px solid var(--accent);
+            outline-offset: 4px;
+        }
+
+        .error-box {
+            border: 1px solid #75463f;
+            background: #291b18;
+            color: #ffbcb0;
+            padding: 13px 15px;
+            margin-bottom: 24px;
+            border-radius: 4px;
+            font-size: 13px;
+            line-height: 1.6;
+        }
+
+        .error-box p {
+            margin: 0;
+        }
+
+        .field-error {
+            color: #ffbcb0;
+            font-size: 12px;
+            margin: 8px 0 0;
+        }
+
+        .login-note {
+            margin-top: 22px;
+            color: var(--muted);
+            font-size: 12px;
+            line-height: 1.6;
+        }
+
+        .panel-footer {
+            display: flex;
+            justify-content: space-between;
+            gap: 16px;
+            border-top: 1px solid var(--border);
+            padding-top: 22px;
+            font-size: 11px;
+            color: var(--muted);
+        }
+
+        @media (min-width: 1500px) {
+            .editorial,
+            .login-panel {
+                padding: 50px 80px;
+            }
+        }
+
+        @media (max-width: 1000px) {
+            .editorial,
+            .login-panel {
+                padding: 32px;
+            }
+
+            .editorial h1 {
+                letter-spacing: -4px;
+            }
+
+            .preview {
+                width: 210px;
+            }
+        }
+
+        @media (max-width: 720px) {
+            .page {
+                grid-template-columns: 1fr;
+            }
+
+            .editorial {
+                padding: 28px;
+            }
+
+            .editorial-content {
+                margin: 35px 0 10px;
+            }
+
+            .editorial h1 {
+                font-size: 62px;
+            }
+
+            .intro {
+                max-width: 100%;
+            }
+
+            .preview,
+            .editorial-footer {
+                display: none;
+            }
+
+            .login-panel {
+                padding: 28px;
+            }
+
+            .login-content {
+                max-width: 440px;
+                padding: 35px 0 45px;
+            }
+
+            .login-content h2 {
+                font-size: 38px;
+            }
+        }
+
+        @media (prefers-reduced-motion: reduce) {
+            * {
+                transition: none !important;
+            }
+        }
+    </style>
+</head>
+
+<body>
+    <main class="page">
+        <section class="editorial" aria-labelledby="editorial-heading">
+            <div class="wordmark">
+                <span class="brand-mark" aria-hidden="true"></span>
+                post studio.
+            </div>
+
+            <div class="editorial-content">
+                <div class="eyebrow">Your brand. In the spotlight.</div>
+
+                <h1 id="editorial-heading">
+                    Good brands<br>
+                    deserve<br>
+                    <em>good posts.</em>
+                </h1>
+
+                <p class="intro">
+                    Turn your next idea into something worth sharing.
+                    Your colors, your voice, your own little creative studio.
+                </p>
+
+                <div class="preview" aria-hidden="true">
+                    <div class="post-card">
+                        <div class="post-label">
+                            <span>THE DAILY BREW</span>
+                            <span>↗</span>
+                        </div>
+
+                        <div class="post-title">
+                            A little<br>
+                            pause.<br>
+                            A good cup.
+                        </div>
+
+                        <div class="post-footer">
+                            FRESH COFFEE. SLOW MORNINGS.
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="editorial-footer">
+                <span>MADE FOR YOUR NEXT BIG IDEA</span>
+                <span>✳</span>
+            </div>
+        </section>
+
+        <section class="login-panel" aria-labelledby="login-heading">
+            <div class="panel-top">
+                <span class="status-dot" aria-hidden="true"></span>
+                Your creative workspace
+            </div>
+
+            <div class="login-content">
+                <span class="section-number">01 / WELCOME BACK</span>
+
+                <h2 id="login-heading">Back to creating.</h2>
+
+                <p class="description">
+                    Log in to your studio.<br>
+                    Your next great post starts here.
+                </p>
+
+                {% if form.non_field_errors %}
+                    <div class="error-box" role="alert">
+                        {% for error in form.non_field_errors %}
+                            <p>{{ error }}</p>
+                        {% endfor %}
+                    </div>
+                {% endif %}
+
+                <form method="post">
+                    {% csrf_token %}
+
+                    <div class="field">
+                        <label for="id_username">Username</label>
+                        <input
+                            type="text"
+                            id="id_username"
+                            name="username"
+                            value="{{ form.username.value|default_if_none:'' }}"
+                            placeholder="Your username"
+                            autocomplete="username"
+                            autocapitalize="none"
+                            spellcheck="false"
+                            maxlength="150"
+                            required
+                            {% if form.username.errors %}
+                                aria-invalid="true"
+                                aria-describedby="username-errors"
+                            {% endif %}
+                        >
+
+                        {% if form.username.errors %}
+                            <div id="username-errors">
+                                {% for error in form.username.errors %}
+                                    <p class="field-error">{{ error }}</p>
+                                {% endfor %}
+                            </div>
+                        {% endif %}
+                    </div>
+
+                    <div class="field">
+                        <label for="id_password">Password</label>
+
+                        <div class="password-wrap">
+                            <input
+                                type="password"
+                                id="id_password"
+                                name="password"
+                                placeholder="Your password"
+                                autocomplete="current-password"
+                                required
+                                {% if form.password.errors %}
+                                    aria-invalid="true"
+                                    aria-describedby="password-errors"
+                                {% endif %}
+                            >
+
+                            <button
+                                class="password-toggle"
+                                id="password-toggle"
+                                type="button"
+                                aria-controls="id_password"
+                                aria-label="Show password"
+                                aria-pressed="false"
+                                hidden
+                            >
+                                Show
+                            </button>
+                        </div>
+
+                        {% if form.password.errors %}
+                            <div id="password-errors">
+                                {% for error in form.password.errors %}
+                                    <p class="field-error">{{ error }}</p>
+                                {% endfor %}
+                            </div>
+                        {% endif %}
+                    </div>
+
+                    {% if next %}
+                        <input type="hidden" name="next" value="{{ next }}">
+                    {% endif %}
+
+                    <button class="submit" type="submit">
+                        Enter the studio
+                        <span aria-hidden="true">↗</span>
+                    </button>
+                </form>
+
+                <p class="login-note">
+                    Your brands, saved designs, and next ideas—all in one place.
+                </p>
+            </div>
+
+            <footer class="panel-footer">
+                <span>POST STUDIO</span>
+                <span>A little less effort. A lot more you.</span>
+            </footer>
+        </section>
+    </main>
+
+    <script>
+        const passwordInput = document.getElementById("id_password");
+        const toggle = document.getElementById("password-toggle");
+
+        toggle.hidden = false;
+
+        toggle.addEventListener("click", function () {
+            const showPassword = passwordInput.type === "password";
+
+            passwordInput.type = showPassword ? "text" : "password";
+            toggle.textContent = showPassword ? "Hide" : "Show";
+            toggle.setAttribute("aria-pressed", String(showPassword));
+            toggle.setAttribute(
+                "aria-label",
+                showPassword ? "Hide password" : "Show password"
+            );
+        });
+    </script>
+</body>
+</html>

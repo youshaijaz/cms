@@ -1,0 +1,65 @@
+{% extends "base.html" %}
+
+{% block title %}{{ brand.name }} | Post Maker{% endblock %}
+
+{% block content %}
+    <div class="page-heading">
+        <div>
+            <h1>{{ brand.name }}</h1>
+            <p>Your brand dashboard.</p>
+        </div>
+
+        <a class="button" href="{% url 'brands:edit' brand.pk %}">
+            Edit brand
+        </a>
+    </div>
+
+    <section class="card">
+        {% if brand.logo %}
+            <img class="logo" src="{{ brand.logo.url }}"
+                 alt="{{ brand.name }} logo">
+        {% endif %}
+
+        <p><strong>Industry:</strong> {{ brand.industry }}</p>
+        <p><strong>Tone:</strong> {{ brand.get_tone_display }}</p>
+        <p><strong>Primary color:</strong> {{ brand.primary_color }}</p>
+        <p><strong>Secondary color:</strong> {{ brand.secondary_color }}</p>
+        <p><strong>Created:</strong> {{ brand.created_at|date:"M j, Y" }}</p>
+    </section>
+    <section class="card">
+        <div class="page-heading">
+            <h2>Recent posts</h2>
+
+            <a class="button"
+            href="{% url 'posts:create' %}?brand={{ brand.pk }}">
+                Create post ↗
+            </a>
+        </div>
+
+        <div class="grid">
+            {% for post in posts %}
+                <article>
+                    <a href="{% url 'posts:detail' post.pk %}">
+                        <img class="generated-image"
+                            src="{% url 'posts:image' post.pk %}"
+                            alt="{{ post.headline }}"
+                            loading="lazy">
+                    </a>
+
+                    <h3>{{ post.headline }}</h3>
+                    <p class="muted">
+                        {{ post.created_at|date:"M j, Y" }}
+                    </p>
+
+                    <a href="{% url 'posts:detail' post.pk %}">
+                        View and download →
+                    </a>
+                </article>
+            {% empty %}
+                <p>No posts yet. Create your first one above.</p>
+            {% endfor %}
+        </div>
+    </section>
+
+    <a href="{% url 'brands:list' %}">Back to my brands</a>
+{% endblock %}

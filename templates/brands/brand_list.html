@@ -1,0 +1,43 @@
+{% extends "base.html" %}
+
+{% block title %}My Brands | Post Maker{% endblock %}
+
+{% block content %}
+    <div class="page-heading">
+        <div>
+            <h1>My brands</h1>
+            <p>Manage the brands you create posts for.</p>
+        </div>
+
+        <a class="button" href="{% url 'brands:create' %}">
+            Create brand
+        </a>
+    </div>
+
+    <div class="grid">
+        {% for brand in brands %}
+            <article class="card">
+                {% if brand.logo %}
+                    <img class="logo" src="{{ brand.logo.url }}"
+                         alt="{{ brand.name }} logo">
+                {% endif %}
+
+                <h2>{{ brand.name }}</h2>
+                <p>{{ brand.industry }}</p>
+                <p>Tone: {{ brand.get_tone_display }}</p>
+
+                <a class="button" href="{% url 'brands:detail' brand.pk %}">
+                    View brand
+                </a>
+            </article>
+        {% empty %}
+            <div class="card">
+                <h2>No brands yet</h2>
+                <p>Create your first brand to get started.</p>
+                <a class="button" href="{% url 'brands:create' %}">
+                    Create brand
+                </a>
+            </div>
+        {% endfor %}
+    </div>
+{% endblock %}
