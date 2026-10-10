@@ -37,7 +37,7 @@
                 <div class="brand-card-top">
                     {% if brand.logo %}
                         <img class="logo"
-                             src="{{ brand.logo.url }}"
+                             src="{% url 'brands:logo' brand.pk %}"
                              alt="{{ brand.name }} logo">
                     {% else %}
                         <div class="brand-avatar" aria-hidden="true">

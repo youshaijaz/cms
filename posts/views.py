@@ -29,7 +29,7 @@ def owned_post(request, pk):
     )
 
 
-@login_required
+
 def template_cards():
     templates = PostTemplate.objects.filter(
         is_active=True,

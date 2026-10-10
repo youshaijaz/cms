@@ -5,6 +5,42 @@ from django.shortcuts import get_object_or_404, redirect, render
 from .forms import BrandForm
 from .models import Brand
 
+from io import BytesIO
+
+from django.http import Http404, HttpResponse
+from PIL import Image, ImageOps
+
+
+@login_required
+def brand_logo(request, pk):
+    brand = get_object_or_404(
+        Brand,
+        pk=pk,
+        owner=request.user,
+    )
+
+    if not brand.logo:
+        raise Http404("Logo not found.")
+
+    output = BytesIO()
+
+    try:
+        with brand.logo.open("rb") as source:
+            with Image.open(source) as image:
+                logo = ImageOps.exif_transpose(image).convert("RGBA")
+                logo.thumbnail((512, 512))
+                logo.save(output, format="PNG")
+    except FileNotFoundError:
+        raise Http404("Logo not found.")
+
+    response = HttpResponse(
+        output.getvalue(),
+        content_type="image/png",
+    )
+    response["Cache-Control"] = "private, no-store"
+    return response
+
+
 
 @login_required
 def brand_list(request):

@@ -10,4 +10,5 @@ urlpatterns = [
     path("new/", views.brand_create, name="create"),
     path("<int:pk>/", views.brand_detail, name="detail"),
     path("<int:pk>/edit/", views.brand_edit, name="edit"),
+    path("<int:pk>/logo/", views.brand_logo, name="logo"),
 ]

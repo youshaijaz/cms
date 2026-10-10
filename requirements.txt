@@ -4,3 +4,7 @@ openai
 python-dotenv
 gunicorn
 whitenoise
+psycopg[binary]
+dj-database-url
+cloudinary
+django-cloudinary-storage
