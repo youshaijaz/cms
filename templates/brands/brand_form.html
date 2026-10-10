@@ -1,24 +1,72 @@
 {% extends "base.html" %}
 
 {% block title %}
-    {% if is_edit %}Edit Brand{% else %}Create Brand{% endif %} | Post Maker
+    {% if is_edit %}Edit Brand{% else %}New Brand{% endif %} · Post Studio
 {% endblock %}
 
 {% block content %}
+<div class="form-layout">
+    <aside class="form-intro">
+        <p class="studio-eyebrow">
+            {% if is_edit %}REFINE YOUR IDENTITY{% else %}LET’S MEET YOUR BRAND{% endif %}
+        </p>
+
+        <h1>
+            {% if is_edit %}
+                Keep it<br>feeling like you.
+            {% else %}
+                Give your<br>brand a home.
+            {% endif %}
+        </h1>
+
+        <p>
+            Your name, colors, and personality.
+            These details shape every post you create.
+        </p>
+
+        <div class="form-tip">
+            <span>A SMALL CREATIVE TIP</span>
+            <p>
+                Choose one strong primary color and a contrasting
+                secondary color. Simple combinations go a long way.
+            </p>
+        </div>
+    </aside>
+
     <section class="card form-card">
-        <h1>{% if is_edit %}Edit brand{% else %}Create brand{% endif %}</h1>
+        <div class="section-heading">
+            <h2>Brand essentials</h2>
+            <span>01 / IDENTITY</span>
+        </div>
 
         <form method="post" enctype="multipart/form-data">
             {% csrf_token %}
 
             {% for error in form.non_field_errors %}
-                <p class="error">{{ error }}</p>
+                <p class="error" role="alert">{{ error }}</p>
             {% endfor %}
 
             {% for field in form %}
                 <div class="form-group">
-                    <label for="{{ field.id_for_label }}">{{ field.label }}</label>
+                    <label for="{{ field.id_for_label }}">
+                        {{ field.label }}
+                        {% if not field.field.required %}
+                            <span class="muted"> · Optional</span>
+                        {% endif %}
+                    </label>
+
                     {{ field }}
+
+                    {% if field.name == "logo" %}
+                        <small>
+                            Upload a clear logo, ideally a transparent PNG.
+                            Maximum size: 5 MB.
+                        </small>
+                    {% elif field.name == "tone" %}
+                        <small>
+                            The personality we’ll use when writing your captions.
+                        </small>
+                    {% endif %}
 
                     {% if field.help_text %}
                         <small>{{ field.help_text }}</small>
@@ -30,8 +78,10 @@
                 </div>
             {% endfor %}
 
-            <div class="actions">
-                <button class="button" type="submit">Save brand</button>
+            <div class="actions form-actions">
+                <button class="button" type="submit">
+                    {% if is_edit %}Save changes{% else %}Create brand{% endif %} ↗
+                </button>
 
                 {% if is_edit %}
                     <a class="button secondary"
@@ -39,11 +89,13 @@
                         Cancel
                     </a>
                 {% else %}
-                    <a class="button secondary" href="{% url 'brands:list' %}">
+                    <a class="button secondary"
+                       href="{% url 'brands:list' %}">
                         Cancel
                     </a>
                 {% endif %}
             </div>
         </form>
     </section>
+</div>
 {% endblock %}

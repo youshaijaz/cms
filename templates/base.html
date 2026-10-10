@@ -4,19 +4,32 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1">
-    <title>{% block title %}Post Maker{% endblock %}</title>
+    <meta name="color-scheme" content="dark">
+    <title>{% block title %}Post Studio{% endblock %}</title>
     <link rel="stylesheet" href="{% static 'css/style.css' %}">
 </head>
 <body>
     <header class="navbar">
-        <a class="site-name" href="{% url 'brands:list' %}">Post Maker</a>
+        <a class="site-name" href="{% url 'brands:list' %}">
+            <span class="brand-mark" aria-hidden="true">✳</span>
+            post studio.
+        </a>
 
         {% if user.is_authenticated %}
-            <nav>
-                <a href="{% url 'brands:list' %}">My brands</a>
+            <nav aria-label="Main navigation">
+                <a class="nav-link" href="{% url 'brands:list' %}">
+                    My brands
+                </a>
+
+                <a class="nav-link" href="{% url 'posts:create' %}">
+                    Create post ↗
+                </a>
+
+                <span class="user-name">{{ user.username }}</span>
+
                 <form method="post" action="{% url 'logout' %}">
                     {% csrf_token %}
-                    <button class="button secondary" type="submit">
+                    <button class="button secondary small" type="submit">
                         Log out
                     </button>
                 </form>
@@ -26,10 +39,15 @@
 
     <main class="container">
         {% for message in messages %}
-            <div class="message">{{ message }}</div>
+            <div class="message" role="status">{{ message }}</div>
         {% endfor %}
 
         {% block content %}{% endblock %}
     </main>
+
+    <footer class="site-footer">
+        <span>POST STUDIO</span>
+        <span>A little less effort. A lot more you.</span>
+    </footer>
 </body>
 </html>

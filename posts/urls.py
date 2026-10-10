@@ -7,7 +7,13 @@ app_name = "posts"
 
 urlpatterns = [
     path("new/", views.post_create, name="create"),
+    path(
+        "templates/<int:pk>/preview/",
+        views.template_preview,
+        name="template_preview",
+    ),
     path("<int:pk>/", views.post_detail, name="detail"),
+    path("<int:pk>/edit/", views.post_edit, name="edit"),
     path("<int:pk>/image/", views.post_image, name="image"),
     path(
         "<int:pk>/caption/download/",

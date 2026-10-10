@@ -1,65 +1,117 @@
 {% extends "base.html" %}
 
-{% block title %}{{ brand.name }} | Post Maker{% endblock %}
+{% block title %}{{ brand.name }} · Post Studio{% endblock %}
 
 {% block content %}
-    <div class="page-heading">
-        <div>
-            <h1>{{ brand.name }}</h1>
-            <p>Your brand dashboard.</p>
-        </div>
-
-        <a class="button" href="{% url 'brands:edit' brand.pk %}">
-            Edit brand
-        </a>
+<div class="page-heading">
+    <div>
+        <p class="studio-eyebrow">YOUR BRAND STUDIO</p>
+        <h1>{{ brand.name }}</h1>
+        <p>Everything you need to make your next impression.</p>
     </div>
 
-    <section class="card">
+    <a class="button"
+       href="{% url 'posts:create' %}?brand={{ brand.pk }}">
+        Create a post ↗
+    </a>
+</div>
+
+<section class="card">
+    <div class="brand-summary">
         {% if brand.logo %}
-            <img class="logo" src="{{ brand.logo.url }}"
+            <img class="logo"
+                 src="{{ brand.logo.url }}"
                  alt="{{ brand.name }} logo">
+        {% else %}
+            <div class="brand-avatar" aria-hidden="true">
+                {{ brand.name|slice:":1"|upper }}
+            </div>
         {% endif %}
 
-        <p><strong>Industry:</strong> {{ brand.industry }}</p>
-        <p><strong>Tone:</strong> {{ brand.get_tone_display }}</p>
-        <p><strong>Primary color:</strong> {{ brand.primary_color }}</p>
-        <p><strong>Secondary color:</strong> {{ brand.secondary_color }}</p>
-        <p><strong>Created:</strong> {{ brand.created_at|date:"M j, Y" }}</p>
-    </section>
-    <section class="card">
-        <div class="page-heading">
-            <h2>Recent posts</h2>
+        <div>
+            <h2>{{ brand.name }}</h2>
+            <p>{{ brand.industry }} · {{ brand.get_tone_display }} voice</p>
+        </div>
+    </div>
 
-            <a class="button"
-            href="{% url 'posts:create' %}?brand={{ brand.pk }}">
-                Create post ↗
-            </a>
+    <div class="brand-details">
+        <div>
+            <span class="detail-label">Primary color</span>
+            <span class="detail-value">{{ brand.primary_color }}</span>
         </div>
 
-        <div class="grid">
-            {% for post in posts %}
-                <article>
-                    <a href="{% url 'posts:detail' post.pk %}">
-                        <img class="generated-image"
-                            src="{% url 'posts:image' post.pk %}"
-                            alt="{{ post.headline }}"
-                            loading="lazy">
-                    </a>
+        <div>
+            <span class="detail-label">Secondary color</span>
+            <span class="detail-value">{{ brand.secondary_color }}</span>
+        </div>
 
+        <div>
+            <span class="detail-label">In your studio since</span>
+            <span class="detail-value">
+                {{ brand.created_at|date:"M j, Y" }}
+            </span>
+        </div>
+    </div>
+</section>
+
+<div class="quick-actions">
+    <a class="action-card"
+       href="{% url 'posts:create' %}?brand={{ brand.pk }}">
+        <span aria-hidden="true">↗</span>
+        <h3>Make your next post</h3>
+        <p>Choose a template and put your idea into motion.</p>
+    </a>
+
+    <a class="action-card" href="{% url 'brands:edit' brand.pk %}">
+        <span aria-hidden="true">✳</span>
+        <h3>Refine your brand</h3>
+        <p>Update your logo, colors, or the way your brand speaks.</p>
+    </a>
+</div>
+
+<div class="section-heading">
+    <h2>Recent work</h2>
+    <span>Your latest creations</span>
+</div>
+
+{% if posts %}
+    <div class="grid">
+        {% for post in posts %}
+            <article class="card brand-card">
+                <a href="{% url 'posts:detail' post.pk %}">
+                    <img class="generated-image"
+                         src="{% url 'posts:image' post.pk %}"
+                         alt="{{ post.headline }}"
+                         loading="lazy">
+                </a>
+
+                <div class="brand-card-body">
                     <h3>{{ post.headline }}</h3>
-                    <p class="muted">
-                        {{ post.created_at|date:"M j, Y" }}
-                    </p>
+                    <p>{{ post.created_at|date:"M j, Y" }}</p>
 
-                    <a href="{% url 'posts:detail' post.pk %}">
-                        View and download →
+                    <a class="card-link"
+                       href="{% url 'posts:detail' post.pk %}">
+                        <span>View and download</span>
+                        <span aria-hidden="true">↗</span>
                     </a>
-                </article>
-            {% empty %}
-                <p>No posts yet. Create your first one above.</p>
-            {% endfor %}
-        </div>
-    </section>
+                </div>
+            </article>
+        {% endfor %}
+    </div>
+{% else %}
+    <section class="empty-state">
+        <div class="empty-symbol" aria-hidden="true">↗</div>
+        <h2>Your first post is waiting.</h2>
+        <p>Pick a layout, add your message, and make it yours.</p>
 
-    <a href="{% url 'brands:list' %}">Back to my brands</a>
+        <a class="button"
+           href="{% url 'posts:create' %}?brand={{ brand.pk }}">
+            Create your first post ↗
+        </a>
+    </section>
+{% endif %}
+
+<p>
+    <a href="{% url 'brands:list' %}">← All brands</a>
+</p>
 {% endblock %}

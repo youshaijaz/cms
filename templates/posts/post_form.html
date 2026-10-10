@@ -1,79 +1,214 @@
 {% extends "base.html" %}
 
-{% block title %}Create Post | Post Studio{% endblock %}
+{% block title %}
+    {% if is_edit %}Edit Design{% else %}Create Design{% endif %} · Post Studio
+{% endblock %}
 
 {% block content %}
-<section class="card form-card">
-    <p class="studio-eyebrow">YOUR NEXT POST</p>
-    <h1>Make something worth sharing.</h1>
-    <p>Choose your brand, pick a layout, and add your message.</p>
+<div class="page-heading">
+    <div>
+        <p class="studio-eyebrow">YOUR PHOTO STUDIO</p>
+        <h1>
+            {% if is_edit %}Make it yours. Again.{% else %}Find your frame.{% endif %}
+        </h1>
+        <p>Choose a design, add your photos, and tell your story.</p>
+    </div>
+</div>
 
-    <form method="post" id="post-form">
-        {% csrf_token %}
+<form method="post" enctype="multipart/form-data" id="design-form">
+    {% csrf_token %}
 
-        {% for error in form.non_field_errors %}
-            <p class="error" role="alert">{{ error }}</p>
-        {% endfor %}
+    {% for error in form.non_field_errors %}
+        <div class="message" role="alert">{{ error }}</div>
+    {% endfor %}
 
-        {% for field in form %}
-            <div class="form-group">
-                {% if field.name == "template" %}
-                    <fieldset class="template-fieldset">
-                        <legend>{{ field.label }}</legend>
-
-                        <div class="template-options">
-                            {% for radio in field %}
-                                <label class="template-option"
-                                       for="{{ radio.id_for_label }}">
-                                    {{ radio.tag }}
-                                    <span>{{ radio.choice_label }}</span>
-                                </label>
-                            {% endfor %}
-                        </div>
-                    </fieldset>
-                {% else %}
-                    <label for="{{ field.id_for_label }}">
-                        {{ field.label }}
-                    </label>
-                    {{ field }}
-                {% endif %}
-
-                {% for error in field.errors %}
-                    <p class="error">{{ error }}</p>
-                {% endfor %}
-            </div>
-        {% endfor %}
-
-        <div class="actions">
-            <button type="submit" class="button" id="generate-button">
-                Generate post ↗
-            </button>
-
-            <a class="button secondary" href="{% url 'brands:list' %}">
-                Cancel
-            </a>
+    <section class="card">
+        <div class="section-heading">
+            <h2>01 / Choose your design</h2>
+            <span>20 photo layouts</span>
         </div>
 
-        <p id="generation-status" class="muted"
-           role="status" hidden></p>
-    </form>
-</section>
+        {% for error in form.template.errors %}
+            <p class="error">{{ error }}</p>
+        {% endfor %}
+
+        <div class="design-gallery">
+            {% for card in template_cards %}
+                <label class="design-card">
+                    <input
+                        type="radio"
+                        name="template"
+                        value="{{ card.template.pk }}"
+                        data-photo-count="{{ card.photo_count }}"
+                        required
+                        {% if form.template.value|stringformat:"s" == card.template.pk|stringformat:"s" %}
+                            checked
+                        {% endif %}
+                    >
+
+                    <img
+                        src="{% url 'posts:template_preview' card.template.pk %}"
+                        alt="{{ card.template.description }}"
+                        loading="lazy"
+                        width="360"
+                        height="360"
+                    >
+
+                    <span class="design-card-info">
+                        <strong>{{ card.template.name }}</strong>
+                        <span>
+                            {{ card.photo_count }}
+                            photo{{ card.photo_count|pluralize }}
+                        </span>
+                    </span>
+                </label>
+            {% empty %}
+                <p>No templates found. Run the seed_templates command.</p>
+            {% endfor %}
+        </div>
+    </section>
+
+    <div class="editor-columns">
+        <section class="card">
+            <h2>02 / Your photos</h2>
+
+            <p id="photo-help" role="status">
+                Select a design to see how many photos it needs.
+            </p>
+
+            {% if is_edit %}
+                <p>
+                    Leave an upload empty to keep its saved photo.
+                    Uploaded photos replace the corresponding frame.
+                </p>
+            {% endif %}
+
+            <div class="photo-input-grid">
+                {% for field in form.photo_fields %}
+                    <div class="photo-upload">
+                        <label for="{{ field.id_for_label }}">
+                            {{ field.label }}
+                        </label>
+
+                        {{ field }}
+
+                        <small>Maximum 8 MB. Photos are cropped to fit.</small>
+
+                        <img
+                            class="upload-preview"
+                            id="preview-{{ field.name }}"
+                            alt="Selected {{ field.label }}"
+                            hidden
+                        >
+
+                        {% for error in field.errors %}
+                            <p class="error">{{ error }}</p>
+                        {% endfor %}
+                    </div>
+                {% endfor %}
+            </div>
+        </section>
+
+        <section class="card">
+            <h2>03 / Your finishing touches</h2>
+
+            {% for field in form %}
+                {% if field.name != "template" and field.name != "photo_1" and field.name != "photo_2" and field.name != "photo_3" and field.name != "photo_4" %}
+                    <div class="form-group">
+                        <label for="{{ field.id_for_label }}">
+                            {{ field.label }}
+                        </label>
+
+                        {{ field }}
+
+                        {% if field.help_text %}
+                            <small>{{ field.help_text }}</small>
+                        {% endif %}
+
+                        {% for error in field.errors %}
+                            <p class="error">{{ error }}</p>
+                        {% endfor %}
+                    </div>
+                {% endif %}
+            {% endfor %}
+
+            <p class="muted">
+                Saving generates a new image and caption.
+                Photos use a center crop.
+            </p>
+
+            <button class="button" type="submit" id="save-design">
+                {% if is_edit %}Save and regenerate{% else %}Generate design{% endif %} ↗
+            </button>
+
+            <p id="generation-status" role="status" hidden></p>
+        </section>
+    </div>
+</form>
 
 <script>
-    const form = document.getElementById("post-form");
-    const button = document.getElementById("generate-button");
+    const templateInputs = document.querySelectorAll(
+        'input[name="template"]'
+    );
+    const help = document.getElementById("photo-help");
+
+    function updatePhotoHelp() {
+        const selected = document.querySelector(
+            'input[name="template"]:checked'
+        );
+
+        if (selected) {
+            const count = selected.dataset.photoCount;
+            help.textContent =
+                `This design uses ${count} photo${count === "1" ? "" : "s"}. ` +
+                `Use the first ${count} upload field${count === "1" ? "" : "s"}.`;
+        }
+    }
+
+    templateInputs.forEach(input => {
+        input.addEventListener("change", updatePhotoHelp);
+    });
+
+    updatePhotoHelp();
+
+    document.querySelectorAll('input[type="file"]').forEach(input => {
+        let previousUrl = null;
+        const preview = document.getElementById(`preview-${input.name}`);
+
+        input.addEventListener("change", function () {
+            if (previousUrl) {
+                URL.revokeObjectURL(previousUrl);
+                previousUrl = null;
+            }
+
+            preview.hidden = true;
+            preview.removeAttribute("src");
+
+            const file = input.files[0];
+
+            if (file && file.type.startsWith("image/")) {
+                previousUrl = URL.createObjectURL(file);
+                preview.src = previousUrl;
+                preview.hidden = false;
+            }
+        });
+    });
+
+    const form = document.getElementById("design-form");
+    const button = document.getElementById("save-design");
     const status = document.getElementById("generation-status");
+    const originalLabel = button.textContent;
 
     form.addEventListener("submit", function () {
         button.disabled = true;
-        button.textContent = "Generating…";
+        button.textContent = "Creating your design…";
         status.hidden = false;
-        status.textContent = "Rendering your image and preparing your caption.";
+        status.textContent = "Fitting your photos and preparing your caption.";
     });
 
     window.addEventListener("pageshow", function () {
         button.disabled = false;
-        button.textContent = "Generate post ↗";
+        button.textContent = originalLabel;
         status.hidden = true;
     });
 </script>

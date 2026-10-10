@@ -10,10 +10,16 @@
         <p>{{ post.brand.name }} · {{ post.template.name }}</p>
     </div>
 
-    <a class="button"
-       href="{% url 'posts:create' %}?brand={{ post.brand.pk }}">
-        Make another ↗
-    </a>
+    <div class="actions">
+        <a class="button" href="{% url 'posts:edit' post.pk %}">
+            Edit design ↗
+        </a>
+
+        <a class="button secondary"
+        href="{% url 'posts:create' %}?brand={{ post.brand.pk }}">
+            Make another
+        </a>
+    </div>
 </div>
 
 <div class="post-result">

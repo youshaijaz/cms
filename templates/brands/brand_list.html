@@ -1,43 +1,77 @@
 {% extends "base.html" %}
 
-{% block title %}My Brands | Post Maker{% endblock %}
+{% block title %}Your Brands · Post Studio{% endblock %}
 
 {% block content %}
-    <div class="page-heading">
-        <div>
-            <h1>My brands</h1>
-            <p>Manage the brands you create posts for.</p>
-        </div>
+<section class="hero">
+    <div>
+        <p class="studio-eyebrow">YOUR CREATIVE WORKSPACE</p>
+
+        <h1>
+            Small ideas.<br>
+            <em>Big presence.</em>
+        </h1>
+
+        <p>
+            A home for your brands and everything you’re about to create.
+            Pick a brand. Make your next move.
+        </p>
 
         <a class="button" href="{% url 'brands:create' %}">
-            Create brand
+            Create a brand ↗
         </a>
     </div>
 
+    <div class="hero-art" aria-hidden="true">✳</div>
+</section>
+
+<div class="section-heading">
+    <h2>Your brands</h2>
+    <span>{{ brands|length }} in your studio</span>
+</div>
+
+{% if brands %}
     <div class="grid">
         {% for brand in brands %}
-            <article class="card">
-                {% if brand.logo %}
-                    <img class="logo" src="{{ brand.logo.url }}"
-                         alt="{{ brand.name }} logo">
-                {% endif %}
+            <article class="card brand-card">
+                <div class="brand-card-top">
+                    {% if brand.logo %}
+                        <img class="logo"
+                             src="{{ brand.logo.url }}"
+                             alt="{{ brand.name }} logo">
+                    {% else %}
+                        <div class="brand-avatar" aria-hidden="true">
+                            {{ brand.name|slice:":1"|upper }}
+                        </div>
+                    {% endif %}
 
-                <h2>{{ brand.name }}</h2>
-                <p>{{ brand.industry }}</p>
-                <p>Tone: {{ brand.get_tone_display }}</p>
+                    <span class="badge">
+                        {{ brand.get_tone_display }}
+                    </span>
+                </div>
 
-                <a class="button" href="{% url 'brands:detail' brand.pk %}">
-                    View brand
-                </a>
+                <div class="brand-card-body">
+                    <h3>{{ brand.name }}</h3>
+                    <p>{{ brand.industry }}</p>
+
+                    <a class="card-link"
+                       href="{% url 'brands:detail' brand.pk %}">
+                        <span>Open brand studio</span>
+                        <span aria-hidden="true">↗</span>
+                    </a>
+                </div>
             </article>
-        {% empty %}
-            <div class="card">
-                <h2>No brands yet</h2>
-                <p>Create your first brand to get started.</p>
-                <a class="button" href="{% url 'brands:create' %}">
-                    Create brand
-                </a>
-            </div>
         {% endfor %}
     </div>
+{% else %}
+    <section class="empty-state">
+        <div class="empty-symbol" aria-hidden="true">✳</div>
+        <h2>A fresh start.</h2>
+        <p>Add your first brand. We’ll take it from there.</p>
+
+        <a class="button" href="{% url 'brands:create' %}">
+            Create your first brand ↗
+        </a>
+    </section>
+{% endif %}
 {% endblock %}
