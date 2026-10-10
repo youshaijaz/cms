@@ -1,0 +1,35 @@
+{% load static %}
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title>{% block title %}Post Maker{% endblock %}</title>
+    <link rel="stylesheet" href="{% static 'css/style.css' %}">
+</head>
+<body>
+    <header class="navbar">
+        <a class="site-name" href="{% url 'brands:list' %}">Post Maker</a>
+
+        {% if user.is_authenticated %}
+            <nav>
+                <a href="{% url 'brands:list' %}">My brands</a>
+                <form method="post" action="{% url 'logout' %}">
+                    {% csrf_token %}
+                    <button class="button secondary" type="submit">
+                        Log out
+                    </button>
+                </form>
+            </nav>
+        {% endif %}
+    </header>
+
+    <main class="container">
+        {% for message in messages %}
+            <div class="message">{{ message }}</div>
+        {% endfor %}
+
+        {% block content %}{% endblock %}
+    </main>
+</body>
+</html>
